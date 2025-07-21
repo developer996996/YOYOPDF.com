@@ -15,6 +15,8 @@
       --gray: #ddd;
       --text: #4a235a;
       --input-bg: #fdf9ff;
+      --success: #2ecc71;
+      --star: gold;
     }
 
     body {
@@ -64,7 +66,8 @@
 
     input[type="file"],
     input[type="text"],
-    input[type="password"] {
+    input[type="password"],
+    textarea {
       width: 100%;
       padding: 12px;
       border-radius: 10px;
@@ -75,7 +78,7 @@
       transition: border 0.3s;
     }
 
-    input:focus {
+    input:focus, textarea:focus {
       outline: none;
       border-color: var(--violet);
     }
@@ -110,6 +113,58 @@
       font-size: 0.9rem;
       color: #777;
     }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      border: 2px solid var(--success);
+      color: var(--success);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      font-size: 1.1rem;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .popup h2 {
+      margin-top: 0;
+      color: var(--success);
+    }
+
+    .stars {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .stars input[type="radio"] {
+      display: none;
+    }
+
+    .stars label {
+      font-size: 2rem;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    .stars input[type="radio"]:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label {
+      color: var(--star);
+    }
+
+    .feedback-message {
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--violet-dark);
+    }
   </style>
 </head>
 <body>
@@ -130,13 +185,13 @@
     </div>
 
     <div class="section">
-      <label>Set Password (Optional):</label>
-      <input type="password" id="pdfPassword" placeholder="Lock your PDF"/>
+      <label><input type="checkbox" id="lockToggle" onchange="togglePasswordField()" /> Lock PDF with Password</label>
+      <input type="password" id="pdfPassword" placeholder="Lock your PDF" style="display:none;" />
     </div>
 
     <div class="section">
-      <label>Watermark (Optional):</label>
-      <input type="text" id="watermarkText" placeholder="Watermark text on each page"/>
+      <label><input type="checkbox" id="watermarkToggle" onchange="toggleWatermarkField()" /> Add Watermark</label>
+      <input type="text" id="watermarkText" placeholder="Watermark text on each page" style="display:none;" />
     </div>
 
     <div class="section">
@@ -150,19 +205,59 @@
       <button onclick="submitFiles()">Convert to PDF</button>
     </div>
 
-    <div id="preview"></div>
+    <div class="section feedback-message">
+      🌸My Friend, If you have a little moment to spare, could you please leave us a sweet feedback for improvement?✨ It would mean the world to us and help us grow even better! 🌱💜-
+      YOYO PDF TEAM
+    </div>
+
+    <div class="section">
+      <h3>Rate Your Experience</h3>
+      <div class="stars">
+        <input type="radio" name="rating" id="star5"><label for="star5">★</label>
+        <input type="radio" name="rating" id="star4"><label for="star4">★</label>
+        <input type="radio" name="rating" id="star3"><label for="star3">★</label>
+        <input type="radio" name="rating" id="star2"><label for="star2">★</label>
+        <input type="radio" name="rating" id="star1"><label for="star1">★</label>
+      </div>
+      <textarea rows="3" placeholder="Leave your feedback here..."></textarea>
+    </div>
 
     <div class="footer">
       Developed with 💜 by DEBAJYOTI BASU
     </div>
   </div>
 
+  <div class="popup" id="successPopup">
+    <h2>✔ Completed Successfully!</h2>
+    <p>Your PDF is ready. Remember, even small steps matter. You're doing amazing 💜</p>
+  </div>
+
   <script>
+    function togglePasswordField() {
+      const checkbox = document.getElementById("lockToggle");
+      const passwordInput = document.getElementById("pdfPassword");
+      passwordInput.style.display = checkbox.checked ? "block" : "none";
+    }
+
+    function toggleWatermarkField() {
+      const checkbox = document.getElementById("watermarkToggle");
+      const watermarkInput = document.getElementById("watermarkText");
+      watermarkInput.style.display = checkbox.checked ? "block" : "none";
+    }
+
+    function showPopup() {
+      const popup = document.getElementById("successPopup");
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 5000);
+    }
+
     function submitFiles() {
       const files = document.getElementById("fileInput").files;
       const pdfName = document.getElementById("pdfName").value || "converted.pdf";
-      const password = document.getElementById("pdfPassword").value;
-      const watermark = document.getElementById("watermarkText").value;
+      const lockEnabled = document.getElementById("lockToggle").checked;
+      const password = lockEnabled ? document.getElementById("pdfPassword").value : "";
+      const watermarkEnabled = document.getElementById("watermarkToggle").checked;
+      const watermark = watermarkEnabled ? document.getElementById("watermarkText").value : "";
 
       if (files.length === 0) {
         alert("Please select at least one file.");
@@ -191,6 +286,7 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
+        showPopup();
       })
       .catch(err => alert("Conversion failed: " + err));
     }
