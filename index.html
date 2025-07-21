@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YOYO PDF Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lavender: #f4eaff;
+      --lavender-dark: #caa9e0;
+      --violet: #8e44ad;
+      --violet-dark: #6c3483;
+      --white: #ffffff;
+      --gray: #ddd;
+      --text: #4a235a;
+      --input-bg: #fdf9ff;
+    }
+
+    body {
+      background-color: var(--lavender);
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .header {
+      background-color: var(--violet);
+      padding: 1.2rem 0;
+      text-align: center;
+      color: var(--white);
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 2.5rem auto;
+      padding: 2rem;
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(142, 68, 173, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--violet-dark);
+      font-size: 1.6rem;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--gray);
+      background: var(--input-bg);
+      font-size: 1rem;
+      color: var(--text);
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--violet);
+    }
+
+    button {
+      background: var(--violet);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      margin: 8px 6px 0 0;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.1s;
+    }
+
+    button:hover {
+      background: var(--violet-dark);
+      transform: scale(1.03);
+    }
+
+    #preview {
+      margin-top: 2rem;
+      border-top: 1px solid var(--gray);
+      padding-top: 1rem;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">YOYO PDF</div>
+
+  <div class="container">
+    <h1>All-in-One PDF Toolkit</h1>
+
+    <div class="section">
+      <label>Select Files (Images or PDFs):</label>
+      <input type="file" id="fileInput" multiple />
+    </div>
+
+    <div class="section">
+      <label>PDF Name:</label>
+      <input type="text" id="pdfName" placeholder="Enter PDF name"/>
+    </div>
+
+    <div class="section">
+      <label>Set Password (Optional):</label>
+      <input type="password" id="pdfPassword" placeholder="Lock your PDF"/>
+    </div>
+
+    <div class="section">
+      <label>Watermark (Optional):</label>
+      <input type="text" id="watermarkText" placeholder="Watermark text on each page"/>
+    </div>
+
+    <div class="section">
+      <label>PDF Operations:</label>
+      <button onclick="mergePDF()">Merge</button>
+      <button onclick="splitPDF()">Split</button>
+      <button onclick="compressPDF()">Compress</button>
+    </div>
+
+    <div class="section">
+      <button onclick="submitFiles()">Convert to PDF</button>
+    </div>
+
+    <div id="preview"></div>
+
+    <div class="footer">
+      Developed with 💜 by DEBAJYOTI BASU
+    </div>
+  </div>
+
+  <script>
+    function submitFiles() {
+      const files = document.getElementById("fileInput").files;
+      const pdfName = document.getElementById("pdfName").value || "converted.pdf";
+      const password = document.getElementById("pdfPassword").value;
+      const watermark = document.getElementById("watermarkText").value;
+
+      if (files.length === 0) {
+        alert("Please select at least one file.");
+        return;
+      }
+
+      const formData = new FormData();
+      for (let file of files) {
+        formData.append("files", file);
+      }
+
+      formData.append("pdfName", pdfName);
+      formData.append("password", password);
+      formData.append("watermark", watermark);
+
+      fetch("http://localhost:5000/convert", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = pdfName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      })
+      .catch(err => alert("Conversion failed: " + err));
+    }
+
+    function mergePDF() {
+      alert("Merge functionality triggered (to be implemented in backend)");
+    }
+
+    function splitPDF() {
+      alert("Split functionality triggered (to be implemented in backend)");
+    }
+
+    function compressPDF() {
+      alert("Compress functionality triggered (to be implemented in backend)");
+    }
+  </script>
+
+</body>
+</html>
